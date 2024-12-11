@@ -17,26 +17,36 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
         });
 
         db.run(
+            `CREATE TABLE IF NOT EXISTS users (
+               id INTEGER PRIMARY KEY AUTOINCREMENT,
+               name TEXT NOT NULL,
+               email TEXT NOT NULL UNIQUE
+            )`
+        );
+        
+        db.run(
             `CREATE TABLE IF NOT EXISTS project (
                id INTEGER PRIMARY KEY AUTOINCREMENT,
-               name TEXT,
-               color TEXT,
-               is_favorite INTEGER DEFAULT 0
-             )`
+               name TEXT NOT NULL,
+               color TEXT NOT NULL,
+               is_favorite BOOLEAN DEFAULT FALSE,
+               user_id INTEGER NOT NULL,
+               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )`
         );
- 
+        
         db.run(
             `CREATE TABLE IF NOT EXISTS tasks (
                id INTEGER PRIMARY KEY AUTOINCREMENT,
-               content TEXT,
-               description TEXT,
-               due_date DATE,
+               content TEXT NOT NULL,
+               description TEXT NOT NULL,
+               due_date DATE NOT NULL,
                is_completed INTEGER DEFAULT 0,
                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-               project_id INTEGER,
+               project_id INTEGER NOT NULL,
                FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE
             )`
-        );
+        );        
     }
 })
 

@@ -1,70 +1,90 @@
 
-
 const Task = require("../models/task.model");
 
-const create = (req, res) => {
-  if (!req.body.content) {
-    return res.status(400).send({ message: "Content cannot be empty!" });
-  }
-
-  const task = {
-    content: req.body.content,
-    description: req.body.description,
-    due_date: req.body.due_date,
-    is_completed: req.body.is_completed || 0,
-    project_id: req.body.project_id,
-  };
-
-  Task.create(task, (err, result) => {
-    if (err) res.status(500).send({ message: err.message });
-    else res.send({ id: result.id, ...task });
-  });
+const create = async (req, res) => {
+    try {
+        const task = {
+            content: req.body.content,
+            description: req.body.description,
+            due_date: req.body.due_date,
+            is_completed: req.body.is_completed || 0,
+            project_id: req.body.project_id,
+        };
+        const result = await Task.create(task);
+        res.send({ id: result.id, ...task });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 };
 
-const findAll = (req, res) => {
-  Task.findAll((err, rows) => {
-    if (err) res.status(500).send({ message: err.message });
-    else res.send(rows);
-  });
+const findAll = async (req, res) => {
+    try {
+        console.log(req.query)
+        let filters = {
+            project_id: req.query.project_id,
+            due_date: req.query.due_date,
+            is_completed: req.query.is_completed ? parseInt(req.query.is_completed) : undefined,
+            created_at: req.query.created_at,
+        };
+        console.log(filters);
+
+        const rows = await Task.findAll(filters);
+        res.send(rows);
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 };
 
-const findOne = (req, res) => {
-  const id = req.params.id;
-  Task.findById(id, (err, row) => {
-    if (err) res.status(500).send({ message: err.message });
-    else if (!row) res.status(404).send({ message: `Task with id ${id} not found` });
-    else res.send(row);
-  });
+const findOne = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const row = await Task.findById(id);
+        if (!row) res.status(404).send({ message: `Task with id ${id} not found` });
+        else res.send(row);
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 };
 
-const update = (req, res) => {
-  const id = req.params.id;
-  const task = {
-    content: req.body.content,
-    description: req.body.description,
-    due_date: req.body.due_date,
-    is_completed: req.body.is_completed,
-  };
-
-  Task.update(id, task, (err) => {
-    if (err) res.status(500).send({ message: err.message });
-    else res.send({ message: `Task with id ${id} updated successfully` });
-  });
+const update = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const task = {
+            content: req.body.content,
+            description: req.body.description,
+            due_date: req.body.due_date,
+            is_completed: req.body.is_completed,
+        };
+        const changes = await Task.update(id, task);
+        if(changes===0){
+          return res.status(400).send({ message: `Task with id ${id} not found` });
+        }
+        res.send({ message: `Task with id ${id} updated successfully` });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 };
 
-const remove = (req, res) => {
-  const id = req.params.id;
-  Task.delete(id, (err) => {
-    if (err) res.status(500).send({ message: err.message });
-    else res.send({ message: `Task with id ${id} deleted successfully` });
-  });
+const remove = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const changes = await Task.delete(id);
+        if(changes===0){
+          return res.status(400).send({ message: `Task with id ${id} not found` });
+        }
+        res.send({ message: `Task with id ${id} deleted successfully` });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 };
 
-const removeAll = (req, res) => {
-  Task.deleteAll((err) => {
-    if (err) res.status(500).send({ message: err.message });
-    else res.send({ message: "All tasks deleted successfully" });
-  });
+const removeAll = async (req, res) => {
+    try {
+        await Task.deleteAll();
+        res.send({ message: "All tasks deleted successfully" });
+    } catch (err) {
+        res.status(500).send({ message: err.message });
+    }
 };
 
 module.exports = { create, findAll, findOne, update, remove, removeAll };
