@@ -41,7 +41,7 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
                content TEXT NOT NULL,
                description TEXT,
                due_date DATE,
-               is_completed INTEGER DEFAULT 0,
+               is_completed BOOLEAN DEFAULT FALSE,
                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                project_id INTEGER NOT NULL,
                FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE
@@ -57,7 +57,10 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
                task_id INTEGER,
                FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
                FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE,
-               CHECK (project_id IS NOT NULL OR task_id IS NOT NULL)
+               CHECK ( 
+               (project_id IS NOT NULL AND task_id IS NULL) OR 
+               (project_id IS NULL AND task_id IS NOT NULL)
+               )
             )`
         );
     }

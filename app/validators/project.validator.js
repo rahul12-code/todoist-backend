@@ -1,22 +1,23 @@
 
 const yup = require("yup");
 
-const projectSchema = yup.object().shape({
+// Validation Schema for Project
+const projectSchema = yup.object({
     
     name: yup
         .string().min(3).max(100).required("Name is required and must be between 3 and 100 characters"),
 
     color: yup
-        .string()
-        .required("Color is required"),
-
+        .string(),
+ 
     is_favorite: yup
         .boolean().default(false),
 
     user_id: yup
-        .number().integer().positive("User ID must be a positive number").required("User ID is required"),
+        .number().integer().positive("User ID must be a positive number")
 });
 
+// Middleware for Project
 const validateProject = async (req, res, next) => {
     try {
         req.body = await projectSchema.validate(req.body, { abortEarly: false, stripUnknown: true });

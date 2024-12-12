@@ -16,6 +16,8 @@ const projectRoutes = (app) => {
 
   router.put("/:id", validateProject, projects.update);
 
+  router.patch("/:id", projects.updatePartial);
+
   router.delete("/:id", projects.remove);
 
   router.delete("/", projects.removeAll);

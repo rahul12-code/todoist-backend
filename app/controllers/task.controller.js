@@ -7,7 +7,7 @@ const create = async (req, res) => {
             content: req.body.content,
             description: req.body.description,
             due_date: req.body.due_date,
-            is_completed: req.body.is_completed || 0,
+            is_completed: req.body.is_completed || false,
             project_id: req.body.project_id,
         };
         const result = await Task.create(task);
@@ -19,17 +19,19 @@ const create = async (req, res) => {
 
 const findAll = async (req, res) => {
     try {
-        //console.log(req.query)
         let filters = {
             project_id: req.query.project_id,
             due_date: req.query.due_date,
             is_completed: req.query.is_completed ? parseInt(req.query.is_completed) : undefined,
             created_at: req.query.created_at,
         };
-        //console.log(filters);
 
         const rows = await Task.findAll(filters);
-        res.send(rows);
+        const formattedTasks = rows.map(row => ({
+            ...row,
+            due_date: new Date(row.due_date).toISOString().split('T')[0], // Format to YYYY-MM-DD
+        }));
+        res.send(formattedTasks);
     } catch (err) {
         res.status(500).send({ message: err.message });
     }

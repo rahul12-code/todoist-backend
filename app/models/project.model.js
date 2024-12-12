@@ -42,6 +42,20 @@ const Project = {
         });
     },
 
+    updatePartial: (id, updates) => {
+        return new Promise((resolve, reject) => {
+            const setClause = Object.keys(updates)
+                .map((key) => `${key} = ?`)
+                .join(", ");
+            const values = [...Object.values(updates), id];
+            const sql = `UPDATE project SET ${setClause} WHERE id = ?`;
+            db.run(sql, values, function (err) {
+                if (err) reject(err);
+                else resolve(this.changes);
+            });
+        });
+    },    
+
     delete: (id) => {
         return new Promise((resolve, reject) => {
             const sql = `DELETE FROM project WHERE id = ?`;
