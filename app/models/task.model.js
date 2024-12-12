@@ -69,7 +69,7 @@ const Task = {
         [task.content, task.description, task.due_date, task.is_completed, id], function (err) {
           if (err) reject(err);
           else resolve(this.changes);
-          console.log(this);
+          //console.log(this);
       });
     });
   },

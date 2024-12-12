@@ -15,6 +15,12 @@ projectRoutes(app);
 const taskRoutes = require('./app/routes/task.routes');
 taskRoutes(app);
 
+const userRoutes = require('./app/routes/user.routes');
+userRoutes(app);
+
+const commentRoutes = require('./app/routes/comment.routes');
+commentRoutes(app);
+
 const PORT = 8081;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

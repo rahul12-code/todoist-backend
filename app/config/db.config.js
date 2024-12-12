@@ -39,14 +39,27 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
             `CREATE TABLE IF NOT EXISTS tasks (
                id INTEGER PRIMARY KEY AUTOINCREMENT,
                content TEXT NOT NULL,
-               description TEXT NOT NULL,
-               due_date DATE NOT NULL,
+               description TEXT,
+               due_date DATE,
                is_completed INTEGER DEFAULT 0,
                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                project_id INTEGER NOT NULL,
                FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE
             )`
-        );        
+        );
+        
+        db.run(
+            `CREATE TABLE IF NOT EXISTS comments (
+               id INTEGER PRIMARY KEY AUTOINCREMENT,
+               content TEXT NOT NULL,
+               posted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+               project_id INTEGER,
+               task_id INTEGER,
+               FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
+               FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE,
+               CHECK (project_id IS NOT NULL OR task_id IS NOT NULL)
+            )`
+        );
     }
 })
 

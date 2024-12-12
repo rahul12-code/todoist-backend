@@ -7,6 +7,7 @@ const create = async (req, res) => {
             name: req.body.name,
             color: req.body.color,
             is_favorite: req.body.is_favorite || false,
+            user_id:req.body.user_id
         };
         const result = await Project.create(project);
         res.send({ id: result.id, ...project });

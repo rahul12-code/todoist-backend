@@ -19,14 +19,14 @@ const create = async (req, res) => {
 
 const findAll = async (req, res) => {
     try {
-        console.log(req.query)
+        //console.log(req.query)
         let filters = {
             project_id: req.query.project_id,
             due_date: req.query.due_date,
             is_completed: req.query.is_completed ? parseInt(req.query.is_completed) : undefined,
             created_at: req.query.created_at,
         };
-        console.log(filters);
+        //console.log(filters);
 
         const rows = await Task.findAll(filters);
         res.send(rows);
