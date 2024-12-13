@@ -9,6 +9,7 @@ const projectSchema = yup.object({
 
     color: yup
         .string(),
+        
  
     is_favorite: yup
         .boolean().default(false),

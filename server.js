@@ -9,6 +9,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const db = require("./app/config/db.config");
+db;
+
+// const seedDatabase = require('./seedDatabase');
+// seedDatabase();
+
 const projectRoutes = require('./app/routes/project.routes')
 projectRoutes(app);
 

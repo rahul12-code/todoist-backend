@@ -1,6 +1,6 @@
 
 
-const projectRoutes = (app) => {
+const projectRoutes = (app) => { 
 
   const projects = require("../controllers/project.controller");
 
