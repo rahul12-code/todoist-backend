@@ -13,17 +13,18 @@ const db = new sqlite3.Database('database.sqlite', (err) => {
 const insertUsers = (count) => {
     return new Promise((resolve) => {
         db.serialize(() => {
-            const stmt = db.prepare(`INSERT INTO users (name, email) VALUES (?, ?)`);
-            for (let i = 0; i < count; i++) {
-                stmt.run(
-                    `User${i}`, 
-                    `user${i}@gmail.com` 
+            const query = `INSERT INTO users (name, email) VALUES (?, ?)`;
+            for (let i = 1; i < count+1; i++) {
+                db.run(query,
+                    [`User${i}`, 
+                    `user${i}@gmail.com`],
+                    (err) => {
+                        if (err) console.error("Error inserting:", err.message);
+                    }
                 );
             }
-            stmt.finalize(() => {
-                console.log(`${count} users inserted.`);
-                resolve();
-            });
+            console.log(`${count} users inserted.`);
+            resolve();
         });
     });
 };
@@ -86,6 +87,35 @@ const insertTasks = (count) => {
         });
     });
 };
+
+const insertComments = (count) => {
+    const batchSize = 250; // rows per batch
+    console.time("insertCommentsTime");
+    return new Promise((resolve) => {
+        db.serialize(() => {
+            for (let batchStart = 0; batchStart < count; batchStart += batchSize) {
+                const values = [];
+                const placeholders = [];
+                for (let i = batchStart; i < Math.min(batchStart + batchSize, count); i++) {
+                    const isProjectComment = Math.random() > 0.5;
+                    values.push(
+                        `Content${i}`, 
+                        isProjectComment? faker.datatype.number({ min: 1, max: 1000000 }) : null, // 1 million projects
+                        isProjectComment? null: faker.datatype.number({ min: 1, max: 10000000 }) // 10 million tasks
+                    );
+                    placeholders.push("(?, ?, ?)");
+                }
+                const query = `INSERT INTO comments (content, project_id, task_id) VALUES ${placeholders.join(",")}`;
+                db.run(query, values, (err) => {
+                    if (err) console.error("Error inserting batch:", err.message);
+                });
+            }
+            console.timeEnd("insertCommentsTime");
+            console.log(`${count} comments inserted.`);
+            resolve();
+        });
+    });
+};
   
 const seedDatabase = async () => {
     try {
@@ -93,7 +123,8 @@ const seedDatabase = async () => {
 
         // await insertUsers(100); // 100 Users
         // await insertProjects(1000000); // 10,00,000 Projects
-        await insertTasks(10000000); // 1,00,00,000 Tasks
+        // await insertTasks(10000000); // 1,00,00,000 Tasks
+        await insertComments(10000)
 
         console.log("Seeding completed!");
         db.close();
