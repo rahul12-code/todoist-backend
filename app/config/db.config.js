@@ -1,4 +1,3 @@
-
 const sqlite3 = require("sqlite3").verbose();
 
 const db = new sqlite3.Database('./database.sqlite',(err)=>{
@@ -9,6 +8,7 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
 
         // Enable foreign key constraints
         db.run('PRAGMA foreign_keys = ON;', (pragmaErr) => {
+            
             if (pragmaErr) {
                 console.error("Failed to enable foreign keys:", pragmaErr.message);
             } else {
@@ -19,13 +19,15 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
         db.run(
             `CREATE TABLE IF NOT EXISTS users (
                id INTEGER PRIMARY KEY AUTOINCREMENT,
-               name TEXT NOT NULL,
-               email TEXT NOT NULL UNIQUE
+               first_name TEXT NOT NULL,
+               last_name TEXT NOT NULL,
+               email TEXT NOT NULL UNIQUE,
+               password TEXT NOT NULL
             )`
         );
         
         db.run(
-            `CREATE TABLE IF NOT EXISTS project (
+            `CREATE TABLE IF NOT EXISTS projects (
                id INTEGER PRIMARY KEY AUTOINCREMENT,
                name TEXT NOT NULL,
                color TEXT NOT NULL,
@@ -44,25 +46,10 @@ const db = new sqlite3.Database('./database.sqlite',(err)=>{
                is_completed BOOLEAN DEFAULT FALSE,
                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                project_id INTEGER NOT NULL,
-               FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE
+               FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
             )`
         );
-        
-        db.run(
-            `CREATE TABLE IF NOT EXISTS comments (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               content TEXT NOT NULL,
-               posted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-               project_id INTEGER,
-               task_id INTEGER,
-               FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
-               FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE,
-               CHECK ( 
-               (project_id IS NOT NULL AND task_id IS NULL) OR 
-               (project_id IS NULL AND task_id IS NOT NULL)
-               )
-            )`
-        );
+
     }
 })
 

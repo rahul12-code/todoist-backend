@@ -5,15 +5,19 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const db = require("./app/config/db.config");
 db;
 
-// const seedDatabase = require('./seedDatabase');
-// seedDatabase();
+const seedDatabase = require('./seedDatabase');
 
 const projectRoutes = require('./app/routes/project.routes')
 projectRoutes(app);
@@ -23,9 +27,6 @@ taskRoutes(app);
 
 const userRoutes = require('./app/routes/user.routes');
 userRoutes(app);
-
-const commentRoutes = require('./app/routes/comment.routes');
-commentRoutes(app);
 
 const PORT = 8081;
 app.listen(PORT, () => {
