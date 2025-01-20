@@ -19,9 +19,7 @@ const userRoutes = (app) => {
 
     router.get("/:id", authenticateJWT, users.findOne);
 
-    // router.put("/:id", validateUser, users.update);
-
-    router.put("/:id", authenticateJWT, users.update);
+    router.put("/:id", validateUser, authenticateJWT, users.update);
 
     router.delete("/:id", authenticateJWT, users.remove);
 

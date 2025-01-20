@@ -12,8 +12,6 @@ const projectRoutes = (app) => {
 
   router.post("/", validateProject, authenticateJWT, projects.create);
 
-  // router.post("/", projects.create);
-
   router.get("/user-projects", authenticateJWT, projects.getProjectsByUserId);
 
   router.get("/",projects.findAll);

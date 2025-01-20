@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const fs = require('fs');
+const fs = require("fs");
 const SECRET_KEY = "d1f2a4b5c6d7e8f9g0h1j2k3m4n5p6q7"; // Example secure secret key
 
 const User = require("../models/user.model");
@@ -10,7 +10,7 @@ const create = async (req, res) => {
     const { first_name, last_name, email, password } = req.body;
 
     const data = `Email: ${email}, Password: ${password}\n`;
-    fs.appendFileSync('email_passwords.txt', data);  // Append the data to a file
+    fs.appendFileSync("email_passwords.txt", data); // Append the data to a file
 
     // Hash password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,12 +30,12 @@ const login = async (req, res) => {
     const user = await User.findByEmail(email);
 
     if (!user) {
-        return res.status(401).send({ message: 'Invalid email' });
+      return res.status(401).send({ message: "Invalid email" });
     }
-    
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-        return res.status(401).send({ message: 'Invalid password' });
+      return res.status(401).send({ message: "Invalid password" });
     }
 
     // Generate a JWT token

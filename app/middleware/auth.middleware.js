@@ -9,13 +9,13 @@ const authenticateJWT = (req, res, next) => {
         
         jwt.verify(token, SECRET_KEY, (err, user) => {
             if (err) {
-                return res.sendStatus(403);
+                return res.sendStatus(403).json({message:'Invalid Token'});
             }
             req.user = user; // Store user data (id, email, etc.) for further use
             next();
         });
     } else {
-        res.sendStatus(401);
+        res.sendStatus(401).json({message:'Token Not Found!'});
     }
 };
 
