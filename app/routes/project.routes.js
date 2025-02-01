@@ -6,9 +6,13 @@ const projectRoutes = (app) => {
 
   const validateProject = require("../validators/project.validator");
 
+  const authenticateJWT = require('../middleware/auth.middleware')
+
   const router = require("express").Router();
 
-  router.post("/", validateProject, projects.create);
+  router.post("/", validateProject, authenticateJWT, projects.create);
+
+  router.get("/user-projects", authenticateJWT, projects.getProjectsByUserId);
 
   router.get("/",projects.findAll);
 
@@ -16,13 +20,11 @@ const projectRoutes = (app) => {
 
   router.put("/:id", validateProject, projects.update);
 
-  router.patch("/:id", projects.updatePartial);
-
   router.delete("/:id", projects.remove);
 
   router.delete("/", projects.removeAll);
 
-  app.use("/api/project", router);
+  app.use("/api/projects", router);
 };
 
 module.exports = projectRoutes;

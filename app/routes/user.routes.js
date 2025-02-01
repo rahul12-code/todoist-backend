@@ -5,19 +5,25 @@ const userRoutes = (app) => {
 
     const validateUser = require("../validators/user.validator");
 
+    const authenticateJWT = require('../middleware/auth.middleware')
+
     const router = require("express").Router();
   
-    router.post("/", validateUser, users.create);
+    // router.post("/", validateUser, users.create);
 
-    router.get("/", users.findAll);
+    router.post("/", users.create);
 
-    router.get("/:id", users.findOne);
+    router.post("/login", users.login);
 
-    router.put("/:id", validateUser, users.update);
+    router.get("/", authenticateJWT, users.findAll);
 
-    router.delete("/:id", users.remove);
+    router.get("/:id", authenticateJWT, users.findOne);
 
-    router.delete("/", users.removeAll);
+    router.put("/:id", validateUser, authenticateJWT, users.update);
+
+    router.delete("/:id", authenticateJWT, users.remove);
+
+    router.delete("/", authenticateJWT, users.removeAll);
   
     app.use("/api/users", router);
   };
