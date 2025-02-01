@@ -13,7 +13,6 @@ const db = new sqlite3.Database("database.sqlite", (err) => {
   console.log("Connected to SQLite database.");
 });
 
-
 const insertUsers = async (count) => {
   return new Promise((resolve) => {
     db.serialize(async () => {
@@ -59,8 +58,8 @@ const insertUsers = async (count) => {
 
 
 const insertProjects = (count) => {
-  const batchSize = 250; // rows per batch
-  // const batchSize = 5; // rows per batch
+  // const batchSize = 250; // rows per batch
+  const batchSize = 5; // rows per batch
   return new Promise((resolve) => {
     db.serialize(() => {
       for (let batchStart = 0; batchStart < count; batchStart += batchSize) {
@@ -78,7 +77,8 @@ const insertProjects = (count) => {
             `Project ${i + 1}`,
             randomColorLabel,
             i % 2 === 0 ? 1 : 0,
-            faker.datatype.number({ min: 1, max: 1000 }) // 1000 Users
+            // faker.datatype.number({ min: 1, max: 1000 }) // 1000 Users
+            faker.datatype.number({ min: 1, max: 10 }) // 10 Users
           );
           placeholders.push("(?, ?, ?, ?)");
         }
@@ -112,7 +112,8 @@ const insertTasks = (count) => {
             `Task Description ${i + 1}`,
             faker.date.future().toISOString().split("T")[0],
             // i % 2 === 0,
-            faker.datatype.number({ min: 1, max: 1000000}) // 1 million projects
+            // faker.datatype.number({ min: 1, max: 1000000}) // 1 million projects
+            faker.datatype.number({ min: 1, max: 100}) // 100 projects
           );
           
           placeholders.push("(?, ?, ?, ?)");
@@ -134,9 +135,9 @@ const seedDatabase = async () => {
   try {
     console.log("Seeding database...");
 
-    // await insertUsers(1000); // 1000 Users
-    // await insertProjects(1000000); // 10,00,000 Projects
-    // await insertTasks(10000000); // 1,00,00,000 Tasks
+    // await insertUsers(10); // 1000 Users
+    // await insertProjects(100); // 10,00,000 Projects
+    // await insertTasks(1000); // 1,00,00,000 Tasks
 
     console.log("Seeding completed!");
     db.close();
