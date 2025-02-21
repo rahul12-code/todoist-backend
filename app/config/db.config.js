@@ -1,56 +1,16 @@
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
+require("dotenv").config();
 
-const db = new sqlite3.Database('./database.sqlite',(err)=>{
-    if (err){
-        console.error("Error opening database:", err.message);
-    } else {
-        console.log("Connected to SQLite database.");
+const pool = new Pool({
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "127.0.0.1",
+  database: process.env.DB_NAME || "todoist_database",
+  password: process.env.DB_PASSWORD || "password",
+  port: process.env.DB_PORT || 5432,
+});
 
-        // Enable foreign key constraints
-        db.run('PRAGMA foreign_keys = ON;', (pragmaErr) => {
-            
-            if (pragmaErr) {
-                console.error("Failed to enable foreign keys:", pragmaErr.message);
-            } else {
-                console.log("Foreign keys enabled.");
-            }
-        });
+pool.connect()
+  .then(() => console.log("Connected to PostgreSQL database."))
+  .catch((err) => console.error("Database connection error:", err.message));
 
-        db.run(
-            `CREATE TABLE IF NOT EXISTS users (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               first_name TEXT NOT NULL,
-               last_name TEXT NOT NULL,
-               email TEXT NOT NULL UNIQUE,
-               password TEXT NOT NULL
-            )`
-        );
-        
-        db.run(
-            `CREATE TABLE IF NOT EXISTS projects (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               name TEXT NOT NULL,
-               color TEXT NOT NULL,
-               is_favorite BOOLEAN DEFAULT FALSE,
-               user_id INTEGER NOT NULL,
-               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-            )`
-        );
-        
-        db.run(
-            `CREATE TABLE IF NOT EXISTS tasks (
-               id INTEGER PRIMARY KEY AUTOINCREMENT,
-               content TEXT NOT NULL,
-               description TEXT,
-               due_date DATE,
-               is_completed BOOLEAN DEFAULT FALSE,
-               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-               project_id INTEGER NOT NULL,
-               FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
-            )`
-        );
-
-    }
-})
-
-module.exports = db;
+module.exports = pool;

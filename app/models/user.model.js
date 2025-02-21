@@ -1,76 +1,77 @@
-
-const db = require("../config/db.config");
+const pool = require("../config/db.config");
 
 const User = {
-    create: (user) => {
-        return new Promise((resolve, reject) => {
-            const sql = `INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)`;
-            db.run(sql, [user.first_name, user.last_name, user.email, user.password], function (err) {
-                if (err) reject(err);
-                else resolve({ id: this.lastID });
-            });
-        });
-    },
+  create: async (user) => {
+    const query = `INSERT INTO users (first_name, last_name, email, password) 
+                   VALUES ($1, $2, $3, $4) RETURNING id`;
+    const values = [user.first_name, user.last_name, user.email, user.password];
+    try {
+      const result = await pool.query(query, values);
+      return { id: result.rows[0].id };
+    } catch (err) {
+      throw err;
+    }
+  },
 
-    findByEmail: (email) => {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM users WHERE email = ?`;
-            db.get(sql, [email], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-    },    
+  findByEmail: async (email) => {
+    const query = `SELECT * FROM users WHERE email = $1`;
+    try {
+      const result = await pool.query(query, [email]);
+      return result.rows[0];
+    } catch (err) {
+      throw err;
+    }
+  },
 
-    findAll: () => {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM users`;
-            db.all(sql, [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        });
-    },
+  findAll: async () => {
+    const query = `SELECT * FROM users`;
+    try {
+      const result = await pool.query(query);
+      return result.rows;
+    } catch (err) {
+      throw err;
+    }
+  },
 
-    findById: (id) => {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM users WHERE id = ?`;
-            db.get(sql, [id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
-    },
+  findById: async (id) => {
+    const query = `SELECT * FROM users WHERE id = $1`;
+    try {
+      const result = await pool.query(query, [id]);
+      return result.rows[0];
+    } catch (err) {
+      throw err;
+    }
+  },
 
-    update: (id, user) => {
-        return new Promise((resolve, reject) => {
-            const sql = `UPDATE users SET name = ?, email = ? WHERE id = ?`;
-            db.run(sql, [user.name, user.email, id], function (err) {
-                if (err) reject(err);
-                else resolve(this.changes);
-            });
-        });
-    },
+  update: async (id, user) => {
+    const query = `UPDATE users SET first_name = $1, last_name = $2, email = $3 WHERE id = $4`;
+    const values = [user.first_name, user.last_name, user.email, id];
+    try {
+      const result = await pool.query(query, values);
+      return result.rowCount;
+    } catch (err) {
+      throw err;
+    }
+  },
 
-    delete: (id) => {
-        return new Promise((resolve, reject) => {
-            const sql = `DELETE FROM users WHERE id = ?`;
-            db.run(sql, [id], function (err) {
-                if (err) reject(err);
-                else resolve(this.changes);
-            });
-        });
-    },
+  delete: async (id) => {
+    const query = `DELETE FROM users WHERE id = $1`;
+    try {
+      const result = await pool.query(query, [id]);
+      return result.rowCount;
+    } catch (err) {
+      throw err;
+    }
+  },
 
-    deleteAll: () => {
-        return new Promise((resolve, reject) => {
-            const sql = `DELETE FROM users`;
-            db.run(sql, [], (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-    },
+  deleteAll: async () => {
+    const query = `DELETE FROM users`;
+    try {
+      await pool.query(query);
+    } catch (err) {
+      throw err;
+    }
+  },
 };
 
 module.exports = User;

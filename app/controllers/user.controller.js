@@ -5,19 +5,13 @@ const SECRET_KEY = "d1f2a4b5c6d7e8f9g0h1j2k3m4n5p6q7"; // Example secure secret 
 
 const User = require("../models/user.model");
 
+
 const create = async (req, res) => {
   try {
     const { first_name, last_name, email, password } = req.body;
-
-    const data = `Email: ${email}, Password: ${password}\n`;
-    fs.appendFileSync("email_passwords.txt", data); // Append the data to a file
-
-    // Hash password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = { first_name, last_name, email, password: hashedPassword };
     const result = await User.create(user);
-
-    // Returning user without password
     res.send({ id: result.id, first_name, last_name, email });
   } catch (err) {
     res.status(500).send({ message: err.message });
@@ -38,10 +32,7 @@ const login = async (req, res) => {
       return res.status(401).send({ message: "Invalid password" });
     }
 
-    // Generate a JWT token
-    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: "1h" });
 
     res.send({ token });
   } catch (err) {

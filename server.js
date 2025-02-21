@@ -1,4 +1,3 @@
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -14,21 +13,19 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+require("dotenv").config();
 const db = require("./app/config/db.config");
-db;
 
-const seedDatabase = require('./seedDatabase');
-
-const projectRoutes = require('./app/routes/project.routes')
-projectRoutes(app);
-
+// Import and use routes
+const projectRoutes = require('./app/routes/project.routes');
 const taskRoutes = require('./app/routes/task.routes');
-taskRoutes(app);
-
 const userRoutes = require('./app/routes/user.routes');
+
+projectRoutes(app);
+taskRoutes(app);
 userRoutes(app);
 
-const PORT = 8081;
+const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -1,82 +1,73 @@
-
-const db = require("../config/db.config");
+const pool = require("../config/db.config");
 
 const Project = {
-    create: (project) => {
-        return new Promise((resolve, reject) => {
-            const sql = `INSERT INTO projects (name, color, is_favorite, user_id) VALUES (?, ?, ?, ?)`;
-            db.run(sql, [project.name, project.color, project.is_favorite, project.user_id], function (err) {
-                if (err){
-                    console.error(`Error inserting project: ${err.message}`);
-                    reject(err);
-                } 
-                else{
-                    console.log(`Project inserted with ID: ${this.lastID}`);
-                    resolve({ id: this.lastID });
-                } 
-            });
-        });
+    create: async (project) => {
+        try {
+            const sql = `INSERT INTO projects (name, color, is_favorite, user_id) VALUES ($1, $2, $3, $4) RETURNING id`;
+            const result = await pool.query(sql, [project.name, project.color, project.is_favorite, project.user_id]);
+            return { id: result.rows[0].id };
+        } catch (err) {
+            throw err;
+        }
     },
 
-    findByUserId: (userId) => {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM projects WHERE user_id = ?`;
-            db.all(sql, [userId], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        });
+    findByUserId: async (userId) => {
+        try {
+            const sql = `SELECT * FROM projects WHERE user_id = $1`;
+            const result = await pool.query(sql, [userId]);
+            return result.rows;
+        } catch (err) {
+            throw err;
+        }
     },
-      
 
-    findAll: () => {
-        return new Promise((resolve, reject) => {
+    findAll: async () => {
+        try {
             const sql = `SELECT * FROM projects`;
-            db.all(sql, [], (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-            });
-        });
+            const result = await pool.query(sql);
+            return result.rows;
+        } catch (err) {
+            throw err;
+        }
     },
 
-    findById: (id) => {
-        return new Promise((resolve, reject) => {
-            const sql = `SELECT * FROM projects WHERE id = ?`;
-            db.get(sql, [id], (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-            });
-        });
+    findById: async (id) => {
+        try {
+            const sql = `SELECT * FROM projects WHERE id = $1`;
+            const result = await pool.query(sql, [id]);
+            return result.rows[0];
+        } catch (err) {
+            throw err;
+        }
     },
 
-    update: (id, project) => {
-        return new Promise((resolve, reject) => {
-            const sql = `UPDATE projects SET name = ?, color = ?, is_favorite = ? WHERE id = ?`;
-            db.run(sql, [project.name, project.color, project.is_favorite, id], function (err) {
-                if (err) reject(err);
-                else resolve(this.changes);
-            });
-        });
+    update: async (id, project) => {
+        try {
+            const sql = `UPDATE projects SET name = $1, color = $2, is_favorite = $3 WHERE id = $4 RETURNING *`;
+            const result = await pool.query(sql, [project.name, project.color, project.is_favorite, id]);
+            return result.rowCount;
+        } catch (err) {
+            throw err;
+        }
     },
 
-    delete: (id) => {
-        return new Promise((resolve, reject) => {
-            const sql = `DELETE FROM projects WHERE id = ?`;
-            db.run(sql, [id], function (err) {
-                if (err) reject(err);
-                else resolve(this.changes);
-            });
-        });
+    delete: async (id) => {
+        try {
+            const sql = `DELETE FROM projects WHERE id = $1 RETURNING *`;
+            const result = await pool.query(sql, [id]);
+            return result.rowCount;
+        } catch (err) {
+            throw err;
+        }
     },
 
-    deleteAll: () => {
-        return new Promise((resolve, reject) => {
+    deleteAll: async () => {
+        try {
             const sql = `DELETE FROM projects`;
-            db.run(sql, [], (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
+            await pool.query(sql);
+        } catch (err) {
+            throw err;
+        }
     },
 };
 
