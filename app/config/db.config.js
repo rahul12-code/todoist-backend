@@ -7,6 +7,7 @@ const pool = new Pool({
   database: process.env.DB_NAME || "todoist_database",
   password: process.env.DB_PASSWORD || "password",
   port: process.env.DB_PORT || 5432,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false, // Enable SSL only if using Render
 });
 
 pool.connect()
